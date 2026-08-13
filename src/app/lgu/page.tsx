@@ -75,14 +75,19 @@ export default function LguDashboard() {
         </div>
       </header>
 
-      {/* Tab bar */}
-      <div className="no-scrollbar flex gap-1 overflow-x-auto border-b border-white/10 px-2 py-2">
+      {/* Tab bar — a responsive GRID. Each tab is its own fixed cell and its
+          text wraps inside the cell, so tabs can never overlap. On phones this
+          lists the tabs in 2 columns down the screen; wider screens use more
+          columns. */}
+      <div className="grid grid-cols-2 gap-2 border-b border-white/10 p-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`whitespace-nowrap rounded-md px-3 py-1.5 text-[11px] uppercase tracking-wider ${
-              tab === t.id ? "bg-brand text-white" : "bg-white/5 text-zinc-400"
+            className={`min-w-0 break-words rounded-md px-2 py-2 text-center text-[11px] uppercase leading-tight tracking-wider transition ${
+              tab === t.id
+                ? "bg-brand text-white"
+                : "bg-white/5 text-zinc-300 hover:bg-white/10"
             }`}
           >
             {t.label}
