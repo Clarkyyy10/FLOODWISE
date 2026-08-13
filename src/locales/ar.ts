@@ -1,0 +1,118 @@
+import type { Dictionary } from "./en";
+
+// Arabic (right-to-left). The I18nProvider sets dir="rtl" when this is active.
+export const ar: Dictionary = {
+  "nav.liveMap": "الخريطة الحية",
+  "nav.routes": "المسارات",
+  "nav.report": "إبلاغ",
+  "nav.alerts": "التنبيهات",
+  "nav.shelters": "الملاجئ",
+  "nav.askAI": "اسأل الذكاء الاصطناعي",
+  "nav.more": "المزيد",
+  "nav.lgu": "LGU / DRRM",
+
+  "brand.region": "ماريكينا والمدن المجاورة",
+
+  "common.search": "بحث",
+  "common.cancel": "إلغاء",
+  "common.confirm": "تأكيد",
+  "common.back": "رجوع",
+  "common.next": "التالي",
+  "common.submit": "إرسال",
+  "common.close": "إغلاق",
+  "common.tryAgain": "حاول مرة أخرى",
+  "common.loading": "جارٍ التحميل",
+  "common.save": "حفظ",
+  "common.clear": "مسح",
+  "common.enable": "تفعيل",
+  "common.signIn": "تسجيل الدخول / إنشاء حساب",
+  "common.logout": "تسجيل الخروج",
+
+  "settings.title": "الإعدادات",
+  "settings.appearanceA11y": "المظهر وإمكانية الوصول",
+  "settings.privacy": "الخصوصية",
+  "settings.theme": "السمة",
+  "settings.accent": "اللون المميز",
+  "settings.textSize": "حجم النص",
+  "settings.motion": "الحركة",
+  "settings.language": "اللغة",
+  "settings.currentLanguage": "اللغة الحالية",
+  "settings.changeLanguage": "تغيير اللغة",
+  "settings.searchLanguages": "ابحث عن اللغات…",
+  "settings.recentlyUsed": "المستخدمة مؤخرًا",
+  "settings.allLanguages": "جميع اللغات",
+  "settings.chooseLanguage": "اختر لغتك",
+  "settings.languageNote":
+    "تستخدم الواجهة لغتك عند توفر الترجمة وتعود إلى الإنجليزية بخلاف ذلك. يمكن للمساعد الذكي الرد بلغتك المختارة.",
+
+  "theme.dark": "داكن",
+  "theme.light": "فاتح",
+  "theme.contrast": "تباين عالٍ",
+  "theme.system": "النظام",
+
+  "motion.full": "كامل",
+  "motion.reduced": "مخفّض",
+  "motion.off": "إيقاف",
+
+  "text.sm": "صغير",
+  "text.md": "افتراضي",
+  "text.lg": "كبير",
+  "text.xl": "كبير جدًا",
+
+  "status.passable": "سالك",
+  "status.caution": "تحذير",
+  "status.avoid": "تجنّب",
+  "status.closed": "مغلق رسميًا",
+  "status.unknown": "غير معروف",
+
+  "report.status.pending": "قيد الانتظار",
+  "report.status.verified": "تم التحقق",
+  "report.status.disputed": "متنازع عليه",
+  "report.status.expired": "منتهي الصلاحية",
+  "report.status.rejected": "مرفوض",
+
+  "more.myReports": "تقاريري",
+  "more.guidelines": "إرشادات المجتمع",
+  "more.settings": "الإعدادات",
+  "more.about": "حول FloodWise",
+  "more.help": "المساعدة والدعم",
+
+  "map.liveConditions": "الحالة المباشرة",
+  "map.title": "خريطة فيضانات وادي ماريكينا",
+  "map.map": "خريطة",
+  "map.list": "قائمة",
+  "map.stat.avoid": "طرق: تجنّب",
+  "map.stat.caution": "تحذير",
+  "map.stat.passable": "سالك",
+  "map.stat.closures": "إغلاقات",
+  "map.recentReports": "التقارير الأخيرة",
+  "map.layers": "الطبقات",
+  "map.mapStyle": "نمط الخريطة",
+
+  "loc.using": "استخدام موقعك الحالي",
+  "loc.locating": "جارٍ تحديد موقعك…",
+  "loc.idle": "الموقع غير مُفعّل",
+  "loc.unavailable": "الموقع غير متاح — استخدام وسط ماريكينا",
+
+  "legend.roadConditions": "حالة الطرق",
+  "legend.reportStatus": "حالة التقرير",
+  "glyph.verified": "تم التحقق",
+  "glyph.community": "المجتمع",
+  "glyph.disputed": "متنازع عليه",
+  "glyph.outdated": "قديم",
+
+  "search.placeholder": "إلى أين تريد الذهاب؟",
+
+  "clock.date": "التاريخ",
+  "clock.time": "الوقت",
+  "clock.status": "الحالة",
+  "clock.live": "مباشر",
+  "clock.flood": "فيضان",
+  "clock.admin": "مشرف",
+
+  "flood.title": "حدث فيضان نشط",
+  "flood.body":
+    "تم رصد أمطار غزيرة حاليًا في ماريكينا والمدن المجاورة. قد تتغير الظروف بسرعة. إذا كنت في مكان آمن بالفعل ويمكنك مراقبة الطريق بأمان، يمكنك مساعدة المجتمع بإرسال تقرير حالي.",
+  "flood.safety": "أبلغ فقط إذا كان بإمكانك ذلك بأمان — لا تدخل مياه الفيضان أبدًا.",
+  "flood.reportBtn": "الإبلاغ عن الحالة الحالية",
+};
