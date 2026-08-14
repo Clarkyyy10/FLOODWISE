@@ -86,10 +86,15 @@ export default function AiAssistantPage() {
   const STORAGE_KEY = "fw_ai_conversation";
 
   // Load a saved conversation from this device (localStorage — never leaves the browser).
+  // Strip any stale error bubbles (e.g. an old "service isn't configured" message
+  // from before the AI key was set) so they don't reappear on every load.
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setMessages(JSON.parse(saved) as Msg[]);
+      if (saved) {
+        const parsed = (JSON.parse(saved) as Msg[]).filter((m) => !m.error);
+        setMessages(parsed);
+      }
     } catch {
       /* ignore corrupt/absent data */
     }
@@ -100,7 +105,10 @@ export default function AiAssistantPage() {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-50)));
+      // Don't persist transient error bubbles (config/unavailable/failed) — they
+      // would otherwise reappear on the next load and look like a broken AI.
+      const persistable = messages.filter((m) => !m.error).slice(-50);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
     } catch {
       /* storage full / unavailable — non-fatal */
     }
