@@ -1,0 +1,129 @@
+# 🎤 FloodWise — 3-Minute Pitch
+
+**Good day, everyone.**
+
+Imagine you're walking home in Marikina City during a heavy rainstorm.
+
+You receive an alert saying that flooding is happening nearby. You open your map—but the route you're given doesn't tell you whether the road ahead is flooded, whether it's still passable on foot, or whether there's a safer route available.
+
+**This is the problem we want to solve with FloodWise.**
+
+FloodWise is a **community-powered flood awareness, reporting, and navigation system designed specifically for Marikina City.**
+
+Our goal is simple:
+
+> **Turn real-time local observations into useful information that helps people make safer decisions during floods.**
+
+---
+
+### 🌧️ How does FloodWise work?
+
+First, users can see a **live flood map** showing reported conditions around Marikina.
+
+When a user encounters flooding, they can submit a report by selecting the flood severity, providing their location, adding notes, and optionally uploading a photo.
+
+But there's one important principle:
+
+**We don't want people to risk their lives just to submit a report.**
+
+Users are encouraged to report **while the condition is happening**, but only when they can safely observe it.
+
+Before using the community reporting system, users must agree to our **Community Reporting Rules and Terms & Conditions**, where they acknowledge that they should submit only information they genuinely know or observed.
+
+Intentional fake or malicious reports can be removed and may result in reporting restrictions or account suspension.
+
+---
+
+### 🗺️ But FloodWise goes beyond simply showing flood reports.
+
+One of our key features is **flood-aware navigation.**
+
+A normal map can tell you how to get somewhere.
+
+FloodWise aims to tell you:
+
+> **"Can I actually get there under the current conditions?"**
+
+Users can select their current location and destination, and the system can consider available flood and road-condition information when recommending routes.
+
+We also separate **vehicle passability from pedestrian passability**, because a road that a vehicle can pass through doesn't necessarily mean that it is safe for someone walking.
+
+However, FloodWise never claims that a route is **100% safe**.
+
+Instead, it provides a recommendation based on the **latest available information**, because flood conditions can change very quickly.
+
+---
+
+### 🤖 We also integrate AI.
+
+Our AI assistant allows users to ask questions such as:
+
+> "Is there flooding near my destination?"
+
+> "Which nearby shelter is available?"
+
+> "What should I consider before taking this route?"
+
+The AI helps users **understand information**, but it is not treated as an emergency authority.
+
+Official information and verified data take priority.
+
+---
+
+### 🏢 And this isn't only for citizens.
+
+FloodWise also provides an **LGU/DRRM dashboard**.
+
+Authorized personnel can monitor reports, review community information, manage shelter availability, issue alerts, and identify areas that may need attention.
+
+Citizens cannot access these administrative functions because we use **role-based access control**.
+
+---
+
+### 🔐 Most importantly, FloodWise is designed around trust.
+
+Community reports are not automatically treated as facts.
+
+Reports can have statuses such as:
+
+**Pending → Verified → Disputed → Resolved → Expired.**
+
+Reports also have timestamps, locations, and supporting information when available.
+
+This allows users to understand not only **what is being reported**, but also **how recent and reliable that information is.**
+
+---
+
+### 🎯 So what makes FloodWise different?
+
+It's not simply another weather app.
+
+It's not simply another map.
+
+And it's not simply another reporting platform.
+
+**FloodWise connects all three with the community and the LGU.**
+
+```text
+COMMUNITY
+    ↓
+REAL-TIME REPORTS
+    ↓
+VERIFICATION
+    ↓
+FLOOD & PASSABILITY MAP
+    ↓
+ALERTS + NAVIGATION + SHELTERS
+    ↓
+BETTER DECISIONS
+```
+
+Our vision is to create a system where **people don't just receive information—they contribute to it**, while government personnel can use that information to better understand what's happening on the ground.
+
+**FloodWise is built on one simple idea:**
+
+> **When floods change quickly, information needs to move just as quickly.**
+
+And by connecting **citizens, technology, AI, maps, and the LGU**, we hope to make Marikina a little more informed, prepared, and resilient during flooding.
+
+**Thank you.**
