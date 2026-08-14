@@ -6,6 +6,7 @@ import {
   loadSession,
   login as doLogin,
   register as doRegister,
+  seedDemoUsers,
   type AuthResult,
   type Role,
   type Session,
@@ -26,6 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    seedDemoUsers(); // ensure demo login accounts exist for presentations
     setSession(loadSession());
     setReady(true);
   }, []);

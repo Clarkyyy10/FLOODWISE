@@ -44,7 +44,7 @@ export default function SheltersPage() {
     <div className="min-h-full">
       <header className="px-4 py-3">
         <h1 className="fw-h1 font-bold text-white">Shelters</h1>
-        <p className="text-[11px] text-gray-400">Evacuation centers</p>
+        <p className="text-[11px] text-gray-400">Evacuation centers · simulated demo data</p>
       </header>
 
       <div className="grid grid-cols-1 items-start gap-2 px-4 pb-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -52,6 +52,8 @@ export default function SheltersPage() {
           const st = STATUS_STYLE[sh.status];
           const open = expanded === sh.id;
           const needsConfirm = confirmId === sh.id;
+          const pct = Math.round((sh.occupancy / sh.capacity) * 100);
+          const nearlyFull = sh.status === "open" && pct >= 85;
           return (
             <div key={sh.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
               <button
@@ -64,9 +66,13 @@ export default function SheltersPage() {
                 </div>
                 <span
                   className="rounded-full px-2 py-0.5 text-xs font-medium"
-                  style={{ backgroundColor: `${st.color}22`, color: st.color }}
+                  style={
+                    nearlyFull
+                      ? { backgroundColor: "#f9731622", color: "#f97316" }
+                      : { backgroundColor: `${st.color}22`, color: st.color }
+                  }
                 >
-                  {st.label}
+                  {nearlyFull ? "Nearly Full" : st.label}
                 </span>
               </button>
 

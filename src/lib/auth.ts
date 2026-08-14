@@ -21,6 +21,50 @@ interface StoredUser {
 const SESSION_KEY = "fw_session";
 const USERS_KEY = "fw_users";
 
+// ---------------------------------------------------------------------------
+// DEMO / PRESENTATION accounts. Fictional users with obviously fake
+// credentials — safe to show on screen during a capstone demo. Seeded into
+// localStorage on first load (see seedDemoUsers) without overwriting real
+// accounts. NOT for production use.
+// ---------------------------------------------------------------------------
+export const DEMO_ACCOUNTS: {
+  label: string;
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
+}[] = [
+  {
+    label: "Citizen (Demo)",
+    name: "Juan Dela Cruz",
+    email: "demo.citizen@example.com",
+    password: "floodwise123",
+    role: "citizen",
+  },
+  {
+    label: "LGU / DRRM Admin (Demo)",
+    name: "Demo DRRM Administrator",
+    email: "demo.admin@example.com",
+    password: "floodwise-admin",
+    role: "lgu",
+  },
+];
+
+/** Seed the demo accounts once, without clobbering any real registrations. */
+export function seedDemoUsers() {
+  if (typeof window === "undefined") return;
+  const users = readUsers();
+  let changed = false;
+  for (const a of DEMO_ACCOUNTS) {
+    const e = a.email.toLowerCase();
+    if (!users[e]) {
+      users[e] = { name: a.name, email: e, password: a.password, role: a.role };
+      changed = true;
+    }
+  }
+  if (changed) writeUsers(users);
+}
+
 function readUsers(): Record<string, StoredUser> {
   if (typeof window === "undefined") return {};
   try {

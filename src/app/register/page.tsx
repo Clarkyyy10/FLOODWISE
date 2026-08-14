@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useSettings } from "@/components/providers/ThemeProvider";
+import { resolveTheme } from "@/lib/settings";
 import { hasAcceptedAgreement } from "@/lib/agreement";
+import Captcha, { verifyCaptcha } from "@/components/auth/Captcha";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
+  const { settings } = useSettings();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,6 +21,13 @@ export default function RegisterPage() {
   const [busy, setBusy] = useState(false);
   const [allowed, setAllowed] = useState(false);
 
+  // CAPTCHA state.
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const [captchaKey, setCaptchaKey] = useState(0);
+
+  const captchaTheme = resolveTheme(settings.theme) === "light" ? "light" : "dark";
+
   // Require the Community Safety & Reporting agreement before authentication.
   useEffect(() => {
     if (hasAcceptedAgreement()) setAllowed(true);
@@ -24,14 +35,45 @@ export default function RegisterPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function submit() {
+  function resetCaptcha() {
+    setCaptchaToken(null);
+    setCaptchaKey((k) => k + 1);
+  }
+
+  async function submit() {
     if (busy) return;
+    if (!captchaToken) {
+      setCaptchaError("Please complete the CAPTCHA verification.");
+      return;
+    }
     setBusy(true);
     setError(null);
+    setCaptchaError(null);
+
+    // 1) Verify CAPTCHA server-side before creating the account.
+    const cap = await verifyCaptcha(captchaToken);
+    if (!cap.ok) {
+      setBusy(false);
+      resetCaptcha();
+      setCaptchaError(
+        cap.reason === "expired"
+          ? "Your CAPTCHA verification expired. Please verify again."
+          : cap.reason === "rate_limited"
+            ? "Too many attempts. Please wait a moment and try again."
+            : "We couldn't verify that you're a human. Please try again.",
+      );
+      return;
+    }
+
+    // 2) Create the account.
     const res = register(name, email, password, role);
     setBusy(false);
-    if (res.ok) router.push(res.session.role === "lgu" ? "/lgu" : "/");
-    else setError(res.error);
+    if (res.ok) {
+      router.push(res.session.role === "lgu" ? "/lgu" : "/");
+    } else {
+      setError(res.error);
+      resetCaptcha();
+    }
   }
 
   if (!allowed) return null;
@@ -111,9 +153,37 @@ export default function RegisterPage() {
             </div>
           )}
 
+          {/* CAPTCHA — must be completed before the account can be created */}
+          <div>
+            <span className="mb-1 block text-[10px] uppercase tracking-[0.15em] text-zinc-500">
+              Verification
+            </span>
+            <Captcha
+              key={captchaKey}
+              theme={captchaTheme}
+              onVerify={(token) => {
+                setCaptchaToken(token);
+                setCaptchaError(null);
+              }}
+              onExpire={() => {
+                setCaptchaToken(null);
+                setCaptchaError("Your CAPTCHA verification expired. Please verify again.");
+              }}
+              onError={() => {
+                setCaptchaToken(null);
+                setCaptchaError("We couldn't verify that you're a human. Please try again.");
+              }}
+            />
+            {captchaError && (
+              <div className="mt-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-200">
+                {captchaError}
+              </div>
+            )}
+          </div>
+
           <button
             onClick={submit}
-            disabled={busy}
+            disabled={busy || !captchaToken}
             className="w-full rounded-md bg-brand py-2.5 text-xs font-semibold uppercase tracking-wider text-white disabled:opacity-50"
           >
             {busy ? "Creating…" : "Create Account"}
@@ -125,6 +195,17 @@ export default function RegisterPage() {
           <Link href="/login" className="font-medium text-brand">
             Sign in
           </Link>
+        </p>
+        <p className="mt-3 text-center text-[11px] leading-relaxed text-zinc-600">
+          By creating an account you agree to the{" "}
+          <Link href="/terms" className="font-medium text-brand">
+            Terms &amp; Conditions
+          </Link>
+          , the{" "}
+          <Link href="/privacy" className="font-medium text-brand">
+            Privacy Policy
+          </Link>
+          , and the Community Reporting Rules.
         </p>
         <p className="mt-2 text-center text-[10px] text-zinc-600">
           Demo accounts are stored on this device only.

@@ -56,7 +56,21 @@ interface FloodWiseState {
   markAlertRead: (alertId: string) => void;
   markAllAlertsRead: () => void;
   setActiveFloodMode: (on: boolean) => void;
+
+  // Shelter management (LGU/DRRM). Occupancy changes auto-derive full/open.
+  setShelter: (id: string, patch: Partial<(typeof MOCK_SHELTERS)[number]>) => void;
+
+  // Presentation: restore the entire demo scenario to its initial state.
+  resetDemo: () => void;
 }
+
+// Fresh copies of the seed data so in-session edits never mutate the source
+// constants — this is what makes resetDemo() reliably repeatable.
+const seed = () => ({
+  reports: MOCK_REPORTS.map((r) => ({ ...r })),
+  alerts: MOCK_ALERTS.map((a) => ({ ...a })),
+  shelters: MOCK_SHELTERS.map((s) => ({ ...s })),
+});
 
 // Mock AI vision assessment for a submitted report.
 function fakeAiAssess(draft: DraftReport): AiAssessment | undefined {
@@ -74,10 +88,8 @@ function fakeAiAssess(draft: DraftReport): AiAssessment | undefined {
 }
 
 export const useFloodWise = create<FloodWiseState>((set, get) => ({
-  reports: MOCK_REPORTS,
+  ...seed(),
   closures: {},
-  alerts: MOCK_ALERTS,
-  shelters: MOCK_SHELTERS,
   weather: MOCK_WEATHER,
   roads: MOCK_ROADS,
   activeFloodMode: true, // demo starts mid-event
@@ -167,6 +179,32 @@ export const useFloodWise = create<FloodWiseState>((set, get) => ({
   },
 
   setActiveFloodMode: (on) => set({ activeFloodMode: on }),
+
+  setShelter: (id, patch) => {
+    set((s) => ({
+      shelters: s.shelters.map((sh) => {
+        if (sh.id !== id) return sh;
+        const next = { ...sh, ...patch };
+        // Keep occupancy within bounds and auto-derive open/full from it,
+        // unless the shelter is explicitly closed.
+        next.occupancy = Math.max(0, Math.min(next.capacity, next.occupancy));
+        if (next.status !== "closed") {
+          next.status = next.occupancy >= next.capacity ? "full" : "open";
+        }
+        return next;
+      }),
+    }));
+  },
+
+  resetDemo: () => {
+    set({
+      ...seed(),
+      closures: {},
+      weather: MOCK_WEATHER,
+      roads: MOCK_ROADS,
+      activeFloodMode: true,
+    });
+  },
 }));
 
 export { CURRENT_USER };

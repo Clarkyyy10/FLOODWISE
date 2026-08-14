@@ -353,25 +353,107 @@ function Barangays() {
 
 function ShelterManagement() {
   const shelters = useFloodWise((s) => s.shelters);
+  const setShelter = useFloodWise((s) => s.setShelter);
+
   return (
     <div className="space-y-2">
-      {shelters.map((sh) => (
-        <div key={sh.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-white">{sh.name}</span>
-            <span className="text-[11px] uppercase text-gray-400">{sh.status}</span>
-          </div>
-          <div className="mt-2">
-            <div className="mb-1 flex justify-between text-[11px] text-gray-400">
-              <span>{sh.barangay}</span>
-              <span>
-                {sh.occupancy}/{sh.capacity}
-              </span>
+      <p className="text-xs text-gray-400">
+        Adjusting occupancy or status updates the shelter across the map, navigation, AI, and
+        citizen views. Reaching capacity auto-marks a shelter “full”.
+      </p>
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+        {shelters.map((sh) => {
+          const pct = Math.round((sh.occupancy / sh.capacity) * 100);
+          const nearlyFull = sh.status === "open" && pct >= 85;
+          return (
+            <div key={sh.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-semibold text-white">{sh.name}</span>
+                <span
+                  className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
+                  style={{
+                    backgroundColor:
+                      sh.status === "full"
+                        ? "#eab30822"
+                        : sh.status === "closed"
+                          ? "#ef444422"
+                          : nearlyFull
+                            ? "#f9731622"
+                            : "#22c55e22",
+                    color:
+                      sh.status === "full"
+                        ? "#eab308"
+                        : sh.status === "closed"
+                          ? "#ef4444"
+                          : nearlyFull
+                            ? "#f97316"
+                            : "#22c55e",
+                  }}
+                >
+                  {sh.status === "open" && nearlyFull ? "Nearly full" : sh.status}
+                </span>
+              </div>
+              <div className="mt-2">
+                <div className="mb-1 flex justify-between text-[11px] text-gray-400">
+                  <span>{sh.barangay}</span>
+                  <span>
+                    {sh.occupancy}/{sh.capacity} ({pct}%)
+                  </span>
+                </div>
+                <ReliabilityBar value={pct} />
+              </div>
+
+              {/* Occupancy controls */}
+              <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                <span className="text-[10px] uppercase tracking-wider text-zinc-500">
+                  Occupancy
+                </span>
+                <button
+                  onClick={() => setShelter(sh.id, { occupancy: sh.occupancy - 25 })}
+                  className="rounded-md border border-white/15 px-2 py-1 text-xs text-zinc-200 hover:bg-white/5"
+                >
+                  −25
+                </button>
+                <button
+                  onClick={() => setShelter(sh.id, { occupancy: sh.occupancy + 25 })}
+                  className="rounded-md border border-white/15 px-2 py-1 text-xs text-zinc-200 hover:bg-white/5"
+                >
+                  +25
+                </button>
+                <button
+                  onClick={() => setShelter(sh.id, { occupancy: sh.capacity })}
+                  className="rounded-md border border-white/15 px-2 py-1 text-xs text-zinc-200 hover:bg-white/5"
+                >
+                  Set full
+                </button>
+              </div>
+
+              {/* Status controls */}
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <span className="text-[10px] uppercase tracking-wider text-zinc-500">Status</span>
+                {(["open", "closed"] as const).map((st) => (
+                  <button
+                    key={st}
+                    onClick={() =>
+                      setShelter(sh.id, {
+                        status: st,
+                        occupancy: st === "closed" ? 0 : sh.occupancy,
+                      })
+                    }
+                    className={`rounded-md px-2 py-1 text-xs capitalize ${
+                      sh.status === st
+                        ? "bg-brand text-white"
+                        : "border border-white/15 text-zinc-200 hover:bg-white/5"
+                    }`}
+                  >
+                    {st}
+                  </button>
+                ))}
+              </div>
             </div>
-            <ReliabilityBar value={Math.round((sh.occupancy / sh.capacity) * 100)} />
-          </div>
-        </div>
-      ))}
+          );
+        })}
+      </div>
     </div>
   );
 }

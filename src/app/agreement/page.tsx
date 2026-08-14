@@ -146,7 +146,7 @@ export default function AgreementPage() {
       {/* Links */}
       <div className="mt-3 flex gap-4 text-xs">
         <Link href="/terms" className="font-medium text-brand">
-          View Terms of Service
+          View Terms &amp; Conditions
         </Link>
         <Link href="/privacy" className="font-medium text-brand">
           View Privacy Policy

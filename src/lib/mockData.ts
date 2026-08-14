@@ -174,12 +174,23 @@ export const MOCK_ROADS: Road[] = [
 const now = Date.now();
 const minsAgo = (m: number) => now - m * 60 * 1000;
 
-// Seed reports that produce an interesting starting map for the demo.
+// ============================================================================
+// SIMULATED / DEMO DATA — one coherent flood scenario for Marikina City.
+// A period of heavy rainfall has caused localized flooding. These reports are
+// FICTIONAL and for demonstration only; they are not real-time conditions.
+// Reporter names are fictional demo users (no real personal information).
+// The mix intentionally covers: verified / pending / disputed / expired,
+// different flood depths, and cases where VEHICLE and PEDESTRIAN passability
+// differ. Everything below is consumed by the map, navigation, AI, alerts,
+// and the LGU/DRRM dashboard so the whole system stays internally consistent.
+// ============================================================================
 export const MOCK_REPORTS: Report[] = [
+  // 1) VERIFIED · knee-deep · impassable to vehicles AND unsafe to walk.
+  //    This makes J.P. Rizal the "HIGH risk" shortest-route hazard in the demo.
   {
     id: "r1",
     userId: "u2",
-    userName: "resident_marikina",
+    userName: "Maria Santos",
     gps: [14.6455, 121.1020],
     roadId: "jp-rizal",
     roadName: "J.P. Rizal Street",
@@ -204,10 +215,11 @@ export const MOCK_REPORTS: Report[] = [
     ],
     status: "verified",
   },
+  // 2) VERIFIED · ankle-deep · caution — the "MODERATE risk" alternative.
   {
     id: "r2",
     userId: "u5",
-    userName: "sanroque_watch",
+    userName: "Alex Reyes",
     gps: [14.6520, 121.1035],
     roadId: "shoe-ave",
     roadName: "Shoe Avenue",
@@ -228,27 +240,29 @@ export const MOCK_REPORTS: Report[] = [
     confirmations: [{ id: "c3", userId: "u6", vote: "still_accurate", at: minsAgo(5) }],
     status: "verified",
   },
+  // 3) VERIFIED · clear · the recommended LOWER-RISK route in the demo.
   {
     id: "r3",
     userId: "u7",
-    userName: "gilfern_rider",
+    userName: "Andrea Garcia",
     gps: [14.6420, 121.1130],
     roadId: "gil-fernando",
     roadName: "Gil Fernando Avenue",
     barangay: "San Roque",
-    createdAt: minsAgo(45),
+    createdAt: minsAgo(7),
     vehicle: "passable",
     pedestrian: "lower_risk",
     floodLevel: "none",
     hazards: [],
-    notes: "Clear so far.",
-    confirmations: [],
-    status: "pending",
+    notes: "Road is clear, no flooding observed.",
+    confirmations: [{ id: "c3b", userId: "u6", vote: "still_accurate", at: minsAgo(4) }],
+    status: "verified",
   },
+  // 4) VERIFIED · waist-deep · impassable (dramatic hazard).
   {
     id: "r4",
     userId: "u8",
-    userName: "sumulong_local",
+    userName: "Miguel Ramos",
     gps: [14.6520, 121.1180],
     roadId: "sumulong-hwy",
     roadName: "Sumulong Highway",
@@ -273,12 +287,119 @@ export const MOCK_REPORTS: Report[] = [
     ],
     status: "verified",
   },
+  // 5) KEY DEMO: VEHICLE passable but PEDESTRIAN unsafe (why we split them).
+  {
+    id: "r9",
+    userId: "u20",
+    userName: "Juan Dela Cruz",
+    gps: [14.6580, 121.1000],
+    roadId: "bonifacio-ave",
+    roadName: "A. Bonifacio Avenue",
+    barangay: "Barangka",
+    createdAt: minsAgo(5),
+    vehicle: "passable",
+    pedestrian: "unsafe",
+    floodLevel: "knee",
+    hazards: ["strong_current"],
+    notes:
+      "Cars can still cross slowly, but the current is too strong for people on foot.",
+    ai: {
+      floodVisible: true,
+      consistentWithReport: true,
+      imageQualityOk: true,
+      confidence: "medium",
+      note: "Moving water visible; consistent with a walk-unsafe but drivable road.",
+    },
+    confirmations: [{ id: "c11", userId: "u21", vote: "still_accurate", at: minsAgo(3) }],
+    status: "verified",
+  },
+  // 6) DISPUTED: community disagrees — must NOT be treated like a verified report.
+  {
+    id: "r10",
+    userId: "u22",
+    userName: "Alex Reyes",
+    gps: [14.6280, 121.1140],
+    roadId: "marcos-hwy",
+    roadName: "Marcos Highway",
+    barangay: "Calumpang",
+    createdAt: minsAgo(18),
+    vehicle: "not_passable",
+    pedestrian: "unsafe",
+    floodLevel: "knee",
+    hazards: [],
+    notes: "Reported knee-deep, but several residents say the road is actually passable.",
+    confirmations: [
+      { id: "c12", userId: "u23", vote: "still_accurate", at: minsAgo(16) },
+      { id: "c13", userId: "u24", vote: "appears_incorrect", at: minsAgo(12) },
+      { id: "c14", userId: "u25", vote: "appears_incorrect", at: minsAgo(10) },
+      { id: "c15", userId: "u26", vote: "appears_incorrect", at: minsAgo(8) },
+      { id: "c16", userId: "u27", vote: "situation_changed", at: minsAgo(6) },
+    ],
+    status: "disputed",
+  },
+  // 7) PENDING: awaiting LGU review — used for the verification workflow demo.
+  {
+    id: "r11",
+    userId: "u28",
+    userName: "Andrea Garcia",
+    gps: [14.6480, 121.0900],
+    roadId: "riverbanks",
+    roadName: "Riverbanks Road",
+    barangay: "Barangka",
+    createdAt: minsAgo(4),
+    vehicle: "caution",
+    pedestrian: "caution",
+    floodLevel: "ankle",
+    hazards: ["slippery"],
+    notes: "Water rising slowly near the riverside. Please verify.",
+    confirmations: [],
+    status: "pending",
+  },
+  // 8) EXPIRED: ~3 hours old — the engine ignores it for current routing.
+  {
+    id: "r12",
+    userId: "u29",
+    userName: "Miguel Ramos",
+    gps: [14.6660, 121.1140],
+    roadId: "katipunan-ext",
+    roadName: "Katipunan Extension",
+    barangay: "Concepcion Uno",
+    createdAt: minsAgo(180),
+    vehicle: "not_passable",
+    pedestrian: "unsafe",
+    floodLevel: "knee",
+    hazards: [],
+    notes: "Older report — conditions may have changed since it was submitted.",
+    confirmations: [],
+    status: "expired",
+  },
+  // 9) VERIFIED · dramatic · damaged bridge hazard.
+  {
+    id: "r13",
+    userId: "u30",
+    userName: "Juan Dela Cruz",
+    gps: [14.6580, 121.0860],
+    roadId: "tumana-bridge",
+    roadName: "Tumana Bridge",
+    barangay: "Marikina / Quezon City",
+    createdAt: minsAgo(11),
+    vehicle: "not_passable",
+    pedestrian: "unsafe",
+    floodLevel: "waist",
+    hazards: ["damaged_bridge", "strong_current"],
+    notes: "River very high near the bridge. Authorities restricting crossing.",
+    confirmations: [
+      { id: "c17", userId: "u31", vote: "still_accurate", at: minsAgo(8) },
+      { id: "c18", userId: "u32", vote: "still_accurate", at: minsAgo(5) },
+    ],
+    status: "verified",
+  },
 
-  // --- Surrounding cities ---
+  // --- Surrounding cities (same flood event) ---
   {
     id: "r5",
     userId: "u12",
-    userName: "cainta_commuter",
+    userName: "Maria Santos",
     gps: [14.5810, 121.1235],
     roadId: "ortigas-ext-cainta",
     roadName: "Ortigas Avenue Extension",
@@ -305,7 +426,7 @@ export const MOCK_REPORTS: Report[] = [
   {
     id: "r6",
     userId: "u15",
-    userName: "sanmateo_watch",
+    userName: "Alex Reyes",
     gps: [14.7015, 121.1210],
     roadId: "gen-luna-sanmateo",
     roadName: "Gen. Luna Street",
@@ -322,7 +443,7 @@ export const MOCK_REPORTS: Report[] = [
   {
     id: "r7",
     userId: "u17",
-    userName: "antipolo_rider",
+    userName: "Andrea Garcia",
     gps: [14.6120, 121.1685],
     roadId: "sumulong-antipolo",
     roadName: "Sumulong Highway (Antipolo)",
@@ -339,7 +460,7 @@ export const MOCK_REPORTS: Report[] = [
   {
     id: "r8",
     userId: "u18",
-    userName: "pasig_resident",
+    userName: "Miguel Ramos",
     gps: [14.5725, 121.0920],
     roadId: "c-raymundo-pasig",
     roadName: "C. Raymundo Avenue",
@@ -362,6 +483,8 @@ export const MOCK_REPORTS: Report[] = [
   },
 ];
 
+// SIMULATED / DEMO shelter data. Occupancy values are consistent
+// (occupancy ≤ capacity). Contact numbers are placeholders.
 export const MOCK_SHELTERS: Shelter[] = [
   {
     id: "s1",
@@ -375,12 +498,13 @@ export const MOCK_SHELTERS: Shelter[] = [
   },
   {
     id: "s2",
+    // Nearly full in the demo (270/300 = 90%) — UI shows a "Nearly full" hint.
     name: "Barangka Elementary School",
     location: [14.6470, 121.0920],
     barangay: "Barangka",
     status: "open",
     capacity: 300,
-    occupancy: 180,
+    occupancy: 270,
     contact: "(02) 8942-1101",
   },
   {
@@ -455,44 +579,93 @@ export const MOCK_SHELTERS: Shelter[] = [
     occupancy: 95,
     contact: "(02) 8998-7070",
   },
+  {
+    id: "s10",
+    // Closed in the demo (undergoing assessment) — navigation must not send
+    // evacuees here, and the AI should mention it is closed.
+    name: "Nangka Barangay Hall",
+    location: [14.6720, 121.1050],
+    barangay: "Nangka",
+    status: "closed",
+    capacity: 200,
+    occupancy: 0,
+    contact: "(02) 8941-8080",
+  },
 ];
 
+// SIMULATED / DEMO weather (not a live feed in this dataset).
 export const MOCK_WEATHER: Weather = {
   rainfallMmHr: 18,
   windKph: 34,
   condition: "Heavy rain",
-  forecastNote: "Heavy rainfall expected to continue for the next 2-3 hours.",
+  forecastNote: "Simulated demo: heavy rainfall expected to continue for the next 2-3 hours.",
 };
 
+// SIMULATED / DEMO alerts. Covers weather, flood, road closure, pedestrian
+// safety, evacuation/shelter, official LGU advisory, and community/report
+// types. `advisory` = OFFICIAL LGU/DRRM; `report_request`/`flood` are
+// community-sourced; `system` is app information.
 export const MOCK_ALERTS: Alert[] = [
+  {
+    id: "a0",
+    kind: "system",
+    title: "You are viewing DEMO / SIMULATED data",
+    body: "This is a demonstration scenario. Reports, alerts, weather, shelters, and routes are simulated and do not reflect real-time conditions in Marikina City.",
+    at: minsAgo(30),
+    read: false,
+  },
   {
     id: "a1",
     kind: "weather",
-    title: "Heavy rain expected",
-    body: "PAGASA-style advisory: heavy rainfall over Marikina for the next few hours.",
+    title: "Heavy rain expected (Demo)",
+    body: "Simulated advisory: heavy rainfall over Marikina for the next few hours.",
     at: minsAgo(20),
     read: false,
   },
   {
     id: "a2",
     kind: "flood",
-    title: "Flood conditions reported nearby",
-    body: "Multiple reports of knee-to-waist deep flooding along Sumulong Highway and J.P. Rizal.",
+    title: "Flood conditions reported nearby (Demo)",
+    body: "Multiple community reports of knee-to-waist deep flooding along Sumulong Highway and J.P. Rizal.",
     at: minsAgo(10),
+    read: false,
+  },
+  {
+    id: "a5",
+    kind: "road",
+    title: "Road closure — Tumana Bridge (Demo)",
+    body: "Tumana Bridge crossing restricted due to high river levels. Avoid the area and use alternate routes.",
+    at: minsAgo(8),
+    read: false,
+  },
+  {
+    id: "a6",
+    kind: "route",
+    title: "Pedestrian safety notice (Demo)",
+    body: "A. Bonifacio Avenue is reported drivable but UNSAFE for pedestrians due to strong current. Walkers should choose another route.",
+    at: minsAgo(7),
     read: false,
   },
   {
     id: "a3",
     kind: "report_request",
-    title: "Current road-condition report requested",
+    title: "Current road-condition report requested (Demo)",
     body: "If you are in a safe location and can observe the road, please submit a current report.",
     at: minsAgo(9),
     read: false,
   },
   {
+    id: "a7",
+    kind: "advisory",
+    title: "Evacuation shelters open (Official · Demo)",
+    body: "Marikina Sports Center and Sto. Niño Covered Court are open with available capacity. Concepcion Integrated School is now full.",
+    at: minsAgo(6),
+    read: false,
+  },
+  {
     id: "a4",
     kind: "advisory",
-    title: "LGU/DRRM announcement",
+    title: "LGU/DRRM announcement (Official · Demo)",
     body: "Residents in low-lying barangays advised to prepare for possible evacuation.",
     at: minsAgo(6),
     read: true,

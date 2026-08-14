@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFloodWise, CURRENT_USER } from "@/lib/store";
+import { DEMO_ACCOUNTS } from "@/lib/auth";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useI18n } from "@/components/providers/I18nProvider";
 import LanguageSettings from "@/components/settings/LanguageSettings";
@@ -12,11 +13,21 @@ import { ReliabilityBar } from "@/components/ui/StatusBadge";
 import { FLOOD_LEVEL_OPTIONS } from "@/lib/constants";
 import AppearanceSettings from "@/components/settings/AppearanceSettings";
 
-type Panel = "menu" | "myReports" | "guidelines" | "about" | "help" | "settings" | "language";
+type Panel =
+  | "menu"
+  | "myReports"
+  | "guidelines"
+  | "about"
+  | "help"
+  | "settings"
+  | "language"
+  | "demo";
 
 export default function MorePage() {
   const [panel, setPanel] = useState<Panel>("menu");
   const reports = useFloodWise((s) => s.reports);
+  const resetDemo = useFloodWise((s) => s.resetDemo);
+  const [resetDone, setResetDone] = useState(false);
   const router = useRouter();
   const { session, logout } = useAuth();
   const { t, locale } = useI18n();
@@ -120,6 +131,76 @@ export default function MorePage() {
     );
   }
 
+  if (panel === "demo") {
+    return (
+      <Sub title="Demo / Presentation" onBack={() => setPanel("menu")}>
+        <div className="space-y-4">
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-relaxed text-amber-100/90">
+            <div className="font-semibold uppercase tracking-wide text-amber-300">
+              ⚠️ Simulated Demo Data
+            </div>
+            <p className="mt-1">
+              All reports, alerts, weather, shelters, and routes in this build are simulated for
+              demonstration and do not reflect real-time conditions in Marikina City.
+            </p>
+          </div>
+
+          {/* Demo login accounts */}
+          <div>
+            <div className="mb-1 text-[10px] uppercase tracking-[0.15em] text-zinc-500">
+              Demo accounts
+            </div>
+            <div className="space-y-2">
+              {DEMO_ACCOUNTS.map((a) => (
+                <div
+                  key={a.email}
+                  className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-gray-200"
+                >
+                  <div className="font-semibold text-white">{a.label}</div>
+                  <div className="mt-1 text-gray-400">
+                    <div>Email: {a.email}</div>
+                    <div>Password: {a.password}</div>
+                    <div>Name: {a.name}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="mt-1 text-[10px] text-zinc-500">
+              Fictional accounts with obviously fake credentials — safe to show on screen.
+            </p>
+          </div>
+
+          {/* Reset */}
+          <div>
+            <div className="mb-1 text-[10px] uppercase tracking-[0.15em] text-zinc-500">
+              Reset
+            </div>
+            <button
+              onClick={() => {
+                resetDemo();
+                setResetDone(true);
+                setTimeout(() => setResetDone(false), 2500);
+              }}
+              className="w-full rounded-xl bg-brand py-3 text-sm font-semibold uppercase tracking-wider text-white"
+            >
+              ↺ Reset Demo Data
+            </button>
+            {resetDone && (
+              <p className="mt-2 text-center text-xs text-status-passable">
+                Demo scenario restored. Reports, shelters, alerts, closures, and dashboard stats are
+                back to their starting state.
+              </p>
+            )}
+            <p className="mt-2 text-[10px] leading-relaxed text-zinc-500">
+              Restores reports, shelter occupancy, alerts, road closures, and dashboard statistics
+              so you can repeat the demonstration reliably. (Newly registered accounts are kept.)
+            </p>
+          </div>
+        </div>
+      </Sub>
+    );
+  }
+
   if (panel === "settings") {
     return (
       <Sub title={t("settings.title")} onBack={() => setPanel("menu")}>
@@ -183,8 +264,31 @@ export default function MorePage() {
           onClick={() => setPanel("language")}
         />
         <MenuItem icon="⚙️" label={t("more.settings")} onClick={() => setPanel("settings")} />
+        <MenuItem icon="🎬" label="Demo / Presentation" onClick={() => setPanel("demo")} />
         <MenuItem icon="ℹ️" label={t("more.about")} onClick={() => setPanel("about")} />
         <MenuItem icon="❓" label={t("more.help")} onClick={() => setPanel("help")} />
+
+        {/* Legal */}
+        <Link
+          href="/terms"
+          className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm text-gray-200 hover:bg-white/5"
+        >
+          <span className="flex items-center gap-3">
+            <span>📑</span>
+            Terms &amp; Conditions
+          </span>
+          <span className="text-gray-500">›</span>
+        </Link>
+        <Link
+          href="/privacy"
+          className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm text-gray-200 hover:bg-white/5"
+        >
+          <span className="flex items-center gap-3">
+            <span>🔒</span>
+            Privacy Policy
+          </span>
+          <span className="text-gray-500">›</span>
+        </Link>
 
         {session?.role === "lgu" && (
           <Link

@@ -4,16 +4,27 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useSettings } from "@/components/providers/ThemeProvider";
+import { resolveTheme } from "@/lib/settings";
 import { hasAcceptedAgreement } from "@/lib/agreement";
+import Captcha, { verifyCaptcha } from "@/components/auth/Captcha";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const { settings } = useSettings();
   const [allowed, setAllowed] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // CAPTCHA state.
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const [captchaKey, setCaptchaKey] = useState(0); // bump to reset the widget
+
+  const captchaTheme = resolveTheme(settings.theme) === "light" ? "light" : "dark";
 
   // Require the Community Safety & Reporting agreement before authentication.
   useEffect(() => {
@@ -22,14 +33,45 @@ export default function LoginPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function submit() {
+  function resetCaptcha() {
+    setCaptchaToken(null);
+    setCaptchaKey((k) => k + 1);
+  }
+
+  async function submit() {
     if (busy) return;
+    if (!captchaToken) {
+      setCaptchaError("Please complete the CAPTCHA verification.");
+      return;
+    }
     setBusy(true);
     setError(null);
+    setCaptchaError(null);
+
+    // 1) Verify the CAPTCHA token on the server FIRST.
+    const cap = await verifyCaptcha(captchaToken);
+    if (!cap.ok) {
+      setBusy(false);
+      resetCaptcha();
+      setCaptchaError(
+        cap.reason === "expired"
+          ? "Your CAPTCHA verification expired. Please verify again."
+          : cap.reason === "rate_limited"
+            ? "Too many attempts. Please wait a moment and try again."
+            : "We couldn't verify that you're a human. Please try again.",
+      );
+      return; // keep email/password; do not authenticate
+    }
+
+    // 2) Only then authenticate credentials.
     const res = login(email, password);
     setBusy(false);
-    if (res.ok) router.push(res.session.role === "lgu" ? "/lgu" : "/");
-    else setError(res.error);
+    if (res.ok) {
+      router.push(res.session.role === "lgu" ? "/lgu" : "/");
+    } else {
+      setError(res.error);
+      resetCaptcha(); // token is single-use; require a fresh one for retry
+    }
   }
 
   if (!allowed) return null;
@@ -75,12 +117,40 @@ export default function LoginPage() {
             </div>
           )}
 
+          {/* CAPTCHA — must be completed before Sign In is enabled */}
+          <div>
+            <span className="mb-1 block text-[10px] uppercase tracking-[0.15em] text-zinc-500">
+              Verification
+            </span>
+            <Captcha
+              key={captchaKey}
+              theme={captchaTheme}
+              onVerify={(token) => {
+                setCaptchaToken(token);
+                setCaptchaError(null);
+              }}
+              onExpire={() => {
+                setCaptchaToken(null);
+                setCaptchaError("Your CAPTCHA verification expired. Please verify again.");
+              }}
+              onError={() => {
+                setCaptchaToken(null);
+                setCaptchaError("We couldn't verify that you're a human. Please try again.");
+              }}
+            />
+            {captchaError && (
+              <div className="mt-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-200">
+                {captchaError}
+              </div>
+            )}
+          </div>
+
           <button
             onClick={submit}
-            disabled={busy}
+            disabled={busy || !captchaToken}
             className="w-full rounded-md bg-brand py-2.5 text-xs font-semibold uppercase tracking-wider text-white disabled:opacity-50"
           >
-            {busy ? "Signing in…" : "Sign In"}
+            {busy ? "Logging in…" : "Log In"}
           </button>
         </div>
 
@@ -89,6 +159,17 @@ export default function LoginPage() {
           <Link href="/register" className="font-medium text-brand">
             Create one
           </Link>
+        </p>
+        <p className="mt-3 text-center text-[11px] leading-relaxed text-zinc-600">
+          By signing in you agree to the{" "}
+          <Link href="/terms" className="font-medium text-brand">
+            Terms &amp; Conditions
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="font-medium text-brand">
+            Privacy Policy
+          </Link>
+          .
         </p>
       </div>
     </div>
